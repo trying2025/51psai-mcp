@@ -1,11 +1,10 @@
 {
   "mcpServers": {
-    "51psai": {
+    "51AI": {
       "command": "REPLACE_WITH_ABSOLUTE_BRIDGE_EXECUTABLE_PATH",
       "args": [
-        "--product", "51AI",
-        "--locale", "zh-CN",
-        "--caller-id", "example-ai-host"
+        "--config",
+        "REPLACE_WITH_GENERATED_CONNECTION_CONFIG_PATH"
       ]
     }
   }

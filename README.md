@@ -1,85 +1,218 @@
 # 51PSAI MCP
 
-[中文](#中文) · [English](#english)
+**用自然语言完成 AI 生图、商品修图和批量图片处理。**
 
-Website / 官网: https://51psai.cn/
+简体中文 | [English](README.en.md)
 
-Repository / 仓库: https://github.com/trying2025/51psai-mcp
+[官网](https://51psai.cn/) · [使用教程](https://51psai.cn/tutorials/) · [版本下载](https://github.com/trying2025/51psai-mcp/releases) · [问题反馈](https://github.com/trying2025/51psai-mcp/issues)
 
-Registry name / 注册名称: `io.github.trying2025/51psai-mcp`
+51PSAI MCP 将 51PSAI / PsAIKit 的图像处理能力连接到 AI 助手。你可以直接描述想要的图片效果，让助手选择 Banana、GPTImage 等可用模型，使用参考图片和提示词模板，提交生成任务并查看结果。
 
-## 中文
+面向电商设计师、摄影修图师、内容创作者，以及需要连续处理多张图片的团队。支持 Windows 和 macOS，通过本地 stdio MCP 接入，使用桌面客户端登录和执行任务。
 
-51PSAI MCP 通过独立 Go stdio 桥接程序，让 AI 助手访问 Windows/macOS 本地客户端中的图像生成、修图、提示词模板和批量处理工作流。
+> 例如：“用 Banana 把这组商品图做成统一的电商白底风格，保留商品颜色、Logo 和文字，处理完成后展示每张结果。”
 
-### 产品功能与 MCP 状态
+## 可以做什么
 
-51PSAI 产品及 ai-function 配置覆盖 Banana、GPTImage、商品精修、模特换装、电商套图与详情图、抠图去背景、高清及老照片修复、尺寸放大、图片翻译和证件照等场景。参数来自当前功能配置，包含默认值、显示/隐藏条件、必填校验及模板选项。
+| 场景 | 用途 |
+| --- | --- |
+| AI 生图与修图 | 使用 Banana、GPTImage，根据文字描述生成图片，或结合参考图进行修改 |
+| 电商图片 | 商品精修、电商套图与详情图，制作商品主图和营销素材 |
+| 服装与人像 | 模特换装、AI 模特、证件照等人像处理 |
+| 图片处理 | 抠图去背景、去水印、高清修复、老照片修复、尺寸放大及图片翻译 |
+| 模板与图库 | 查找并应用提示词模板、个人提示词和图库素材 |
+| 批量处理 | 单张图片生成多个结果，或对多张图片执行统一任务，并查询各项进度 |
 
-产品功能列表不代表每个功能已经通过 MCP 验收。2026-10-04 的生产验收覆盖 Banana/GPTImage 生成、提示词模板、图库原图导入、单图多次生成及多图批处理。本地 PSD 图层拆分尚未接入，证件照等其他场景仍需逐项验收。GPT-Image2.5 曾出现请求尺寸与实际输出尺寸不一致的案例。
+具体可调用功能及选项以客户端返回的当前功能列表为准。助手会读取模型选项、默认值及参数之间的依赖，无需你手动填写接口字段。
 
-### 发布状态
+## MCP 工具
 
-本仓库目前是公开分发文档框架。正式 MCPB 包、客户端自动下载清单和官方 Registry 条目尚待发布。普通 ZIP 不能通过修改扩展名变成 MCPB；Registry 只保存元数据。
+| 用途 | 工具 |
+| --- | --- |
+| 客户端状态 | `get_client_status` |
+| 客户端准备与进度 | `ensure_client_ready`、`get_setup_status` |
+| 功能发现与参数 | `list_functions`、`get_function_schema`、`resolve_function_parameters` |
+| 图片导入 | `import_image` |
+| 图片任务与结果 | `submit_image_task`、`get_task`、`read_result` |
+| 模板与图库 | `list_templates`、`list_template_configs`、`apply_template` |
+| 批处理配置 | `list_batch_functions`、`get_batch_function_schema`、`resolve_batch_parameters` |
+| 批处理任务 | `submit_batch_task`、`get_batch_task` |
 
-### 安装与连接
+Banana、GPTImage 和其他图像功能通过统一的任务工具调用，由功能配置决定模型及参数。`ensure_client_ready` 按连接配置启动或准备客户端，返回操作 ID 后可用 `get_setup_status` 查询进度；下载客户端需要预先配置有效的发布清单和允许的下载来源。
 
-1. 正式包发布后，下载符合系统和架构的桥接程序以及支持 MCP 的客户端。当前官网旧版本不能据此视为具备 MCP 支持。
-2. Windows 客户端 ZIP 解压到当前用户有写入权限的目录运行；macOS 使用相应客户端 app。Windows 需要可用的 WebView2 运行时。
-3. 登录客户端，在 MCP 设置中开启服务并为 AI 宿主配置配对和所需权限。
-4. 在支持本地 stdio MCP 的宿主中填写桥接程序绝对路径，参考 `examples/mcp-settings.json.example`。该示例需要替换路径，不是通用于全部宿主的配置格式。
-5. 调用 `get_client_status` 查看连接和登录状态。生成可能消耗账号积分。
+## 快速开始
 
-自动准备使用 `ensure_client_ready`，它返回操作 ID；之后用该 ID 调用 `get_setup_status`。需要预先允许自动准备，并配置可信 HTTPS 客户端发布清单和下载来源。创建仓库或连接 MCP 本身不会自动下载客户端。正式清单尚未发布，当前先使用手动准备方式。
+### 1. 准备客户端
 
-### 调用流程
+你需要：
 
-- 普通任务：`list_functions` → `get_function_schema` → 按需 `import_image` → `resolve_function_parameters` → `submit_image_task` → `get_task` → `read_result`。
-- 模板：`list_templates` → `list_template_configs` → `apply_template`。应用模板返回参数，后续仍需解析及提交生成。
-- 批处理：`list_batch_functions` → `get_batch_function_schema` → `resolve_batch_parameters` → `submit_batch_task` → `get_batch_task`。
+- Windows 或 macOS 电脑。
+- 支持 MCP 的 51PSAI / PsAIKit 客户端，以及配套的 `51ai-mcp` 桥接程序。
+- 一个支持**本地 stdio MCP** 的 AI 客户端。
+- 可登录的 51PSAI / PsAIKit 账号；生成任务按所选功能和账号规则消耗积分。
 
-以当前工具 Schema 为准，不固定模型枚举、字段名或依赖规则。重试提交必须保持原幂等键及输入。
+查看 [Releases](https://github.com/trying2025/51psai-mcp/releases) 获取发布包和版本说明。**目前首个公开 MCP 安装包尚未发布；以下步骤适用于已取得 MCP 预览包的用户。**
 
-### 发布资料
+Windows 将客户端 ZIP 解压到有写入权限的目录，运行客户端；不要直接在压缩包内启动。macOS 解压后打开客户端 app。启动后完成登录。Windows 需要可用的 WebView2 运行时。
 
-- `server.json.example`：官方 Registry 元数据模板，含不可发布的占位符。
-- `examples/mcp-settings.json.example`：手动连接示例。
-- `RELEASING.md`：发布顺序及验收清单。
+### 2. 开启 MCP 并配对
 
-## English
+在客户端打开 **设置 → MCP 接入**：
 
-51PSAI MCP connects AI assistants to local Windows/macOS image generation, editing, prompt-template and batch workflows through a standalone Go stdio bridge.
+1. 勾选 **启用 MCP**。
+2. 需要处理本地图片时，在 **允许读取的图片目录** 中填写图片所在目录，每行一个。需要使用网络图片或图库素材时，填写对应的 **允许下载图片的 HTTPS 来源**，例如图片地址的 `https://图片域名` 部分。
+3. 点击 **保存 MCP 设置**，确认状态显示 **正在监听**。
+4. 填写 **调用方名称**，例如 `my-ai-assistant`。不同 AI 客户端使用不同名称。
+5. 按需要勾选 **状态与功能查询**、**图片生成（可能消耗积分）**、**素材和结果读取**，然后点击 **配对或重新配对**。
+6. 在 **MCP 引导程序的完整路径** 中填入 `51ai-mcp.exe`（Windows）或 `51ai-mcp`（macOS）的绝对路径，点击 **复制宿主接入配置**。
 
-### Product capabilities and MCP status
+首次配对后，先保持 51PSAI 客户端运行，再连接 AI 助手。
 
-The product and ai-function configurations cover Banana, GPTImage, product retouching, model outfit changes, e-commerce image sets and detail images, background removal, photo restoration, upscaling, image translation and ID photos. Parameters follow the current configuration, including defaults, visibility conditions, required-field validation and template options.
+### 3. 在 AI 客户端添加 MCP
 
-Product capabilities are not a statement that every feature has passed MCP acceptance. Production checks on 2026-10-04 covered Banana/GPTImage generation, prompt templates, original gallery imports, repeated single-image generation and multiple-image batches. Local PSD layer splitting is pending, and ID photos and other scenarios still need individual acceptance. A GPT-Image2.5 case returned dimensions different from the requested size.
+在 AI 客户端的 MCP 设置中添加本地服务，粘贴刚复制的配置。复制结果包含程序路径和本机连接配置路径，请使用客户端生成的实际值。
 
-### Release status
+对于使用 `mcpServers` JSON 配置的客户端，配置形式如下：
 
-This repository currently provides distribution documentation. Official MCPB packages, the automatic client-download manifest and the official Registry entry are pending publication. Renaming a ZIP does not create an MCPB package; the Registry stores metadata only.
+```json
+{
+  "mcpServers": {
+    "51AI": {
+      "command": "/absolute/path/to/51ai-mcp",
+      "args": ["--config", "/absolute/path/to/connection.json"]
+    }
+  }
+}
+```
 
-### Installation and connection
+上面的路径仅用于说明结构，不要原样填写。Windows 路径在 JSON 中使用双反斜杠，例如 `C:\\Apps\\51AI\\51ai-mcp.exe`。若已有其他 MCP 服务，将新条目合并到现有配置。
 
-1. Once official packages are published, download the bridge for your platform and architecture and an MCP-enabled desktop client. An older website download should not be assumed to support MCP.
-2. Extract the Windows client ZIP into a directory writable by the current user, or use the macOS client app. Windows requires a working WebView2 runtime.
-3. Sign in, enable MCP in the desktop settings and pair the AI host with the required permissions.
-4. Configure the bridge's absolute path in a host supporting local stdio MCP. See `examples/mcp-settings.json.example`; replace the path and adapt the format to your host.
-5. Call `get_client_status` to check connectivity and login. Generation may consume account credits.
+如果 AI 客户端使用不同的配置格式，将复制结果中的 `command` 填为启动命令，`args` 填为参数。服务类型选择 **stdio / 本地命令**。
 
-Automatic preparation uses `ensure_client_ready`, which returns an operation ID for polling with `get_setup_status`. It requires an allowed preparation policy and a trusted HTTPS client-release manifest and download origins. Creating the repository or connecting MCP does not automatically download the client. The production manifest is not published yet; use manual preparation for now.
+保存后重新加载 MCP 服务，或重启 AI 客户端。
 
-### Tool workflow
+### 4. 检查连接并开始使用
 
-- Image tasks: `list_functions` → `get_function_schema` → `import_image` when needed → `resolve_function_parameters` → `submit_image_task` → `get_task` → `read_result`.
-- Templates: `list_templates` → `list_template_configs` → `apply_template`. Apply returns parameters; resolve and submit separately to generate.
-- Batches: `list_batch_functions` → `get_batch_function_schema` → `resolve_batch_parameters` → `submit_batch_task` → `get_batch_task`.
+先向 AI 助手发送：
 
-Follow the current tool schemas rather than hard-coding model choices, field names or dependencies. Reuse the original idempotency key and inputs when retrying a submission.
+```text
+检查 51PSAI 的连接和登录状态，列出当前可以使用的图像功能及批处理功能，先不要生成图片。
+```
 
-### Release materials
+助手能够读取状态和功能列表后，就可以描述你的任务。需要参考图片时，提供已授权目录下的文件绝对路径，或已授权来源的图片 URL。
 
-- `server.json.example`: Registry metadata template with placeholders that cannot be published.
-- `examples/mcp-settings.json.example`: manual connection example.
-- `RELEASING.md`: publication steps and acceptance checklist.
+## 使用方式
+
+### 图片生成与编辑
+
+1. `list_functions` 查询可用功能，用 `get_function_schema` 读取选定功能的参数。
+2. 编辑图片时，先用 `import_image` 导入本地图片或图片 URL，得到 `asset_id`。
+3. `resolve_function_parameters` 解析默认值、显示/隐藏依赖和必填字段。
+4. `submit_image_task` 提交任务，取得 `task_id`。
+5. `get_task` 查询状态，完成后用返回的结果 ID 调用 `read_result`。
+
+### 模板和图库
+
+使用 `list_templates` 查询分类，`list_template_configs` 查询内容，再用 `apply_template` 应用到选定功能的参数。提示词模板写入文本字段，图库素材导入为图片；应用完成后继续按普通图片任务流程解析参数和提交。
+
+### 批量处理
+
+用 `list_batch_functions` 选择批处理配置，读取 `get_batch_function_schema`。导入图片并通过 `resolve_batch_parameters` 校验后，用 `submit_batch_task` 提交，`get_batch_task` 查询整组任务。
+
+支持单张图片多次生成，以及多张图片配合统一或逐行提示词处理。生成数量、图片输入方式和提示词选项以当前批处理配置为准。
+
+### 默认参数
+
+参数来自客户端当前的 ai-function 配置。未提供的值按配置补齐；显示依赖、隐藏依赖和必填规则一起解析。AI 助手应先读取配置并完成参数解析，再提交任务。
+
+## 对话示例
+
+下面的文字可以直接发送给 AI 助手；将图片路径换成你自己的素材，并使用当前功能列表中可用的模型或功能。
+
+### 生成图片
+
+```text
+使用 51PSAI 的 Banana 生成一张红色陶瓷杯产品图，白色背景，柔和棚拍光，
+画面简洁。先查看支持的比例和尺寸，选择 1:1，生成 1 张并展示结果。
+```
+
+### 商品精修
+
+```text
+使用 51PSAI 处理这张商品图：<图片绝对路径>。
+保留商品外形、Logo、文字和原有配色，改善材质质感和光照，
+让画面适合电商主图。先检查可用功能和所需参数，再生成 1 张。
+```
+
+### 使用提示词模板和图库
+
+```text
+在 51PSAI 中查找适合服装模特展示的提示词模板和图库素材，
+先列出可选项供我选择。选定后应用到我的图片任务，
+检查参考图和必填参数是否完整，再提交生成。
+```
+
+### 批量处理
+
+```text
+用 51PSAI 批量处理这些图片：<图片路径 1>、<图片路径 2>、<图片路径 3>。
+统一使用电商白底风格，保留各自的商品颜色、Logo 和文字。
+每张生成 1 个结果，列出处理计划后提交，完成后汇总每张图片的状态和结果。
+```
+
+### 查询已有任务
+
+```text
+查询刚才 51PSAI 批量任务的进度，展示已完成的结果并说明失败项。
+只查询已有任务，不要重复提交生成。
+```
+
+## 本地图片与任务结果
+
+- **图片输入**：本地图片需要位于客户端允许读取的目录内；网络图片需要来自已允许的 HTTPS 来源。对话附件只有在 AI 客户端能提供可读取的路径或 URL 时，才能作为 MCP 输入。
+- **提示词模板**：可以查询公共提示词和当前账号的个人提示词，应用到对应功能的提示词输入中。
+- **图库素材**：可以查询图库并将原图作为参考素材导入。使用图库需要素材权限和对应图片来源权限。
+- **应用模板**：应用后可以继续调整参数，提交任务时才执行生成。
+- **任务结果**：生成结果由本地客户端保存，助手可以查询状态、读取元数据及预览。当前 MCP 尚未提供任意目录导出和格式转换工具。
+- **批处理进度**：每个分项都可以单独查询。查询进度不会重新生成；需要重试时应沿用原任务信息，避免重复提交。
+
+## 常见问题
+
+### 必须打开 Photoshop 吗？
+
+使用已导入图片进行普通生成、模板应用和独立批处理不需要 Photoshop。图层拆分并保存本地 PSD 的 MCP 功能仍在接入中。
+
+### 需要自己准备模型 API Key 吗？
+
+本接入方式使用 51PSAI / PsAIKit 客户端中的账号和模型服务，不要求在 MCP 配置中填写模型 API Key。请先在客户端完成登录。
+
+### 没有看到 MCP 接入设置怎么办？
+
+请检查安装版本是否包含 MCP 支持。旧版客户端可能没有该入口，以 Releases 中的版本说明为准。
+
+### 连接失败怎么办？
+
+确认客户端已启动、MCP 状态为“正在监听”、桥接程序路径有效，且该调用方已经配对。移动或替换客户端后，可以重新复制连接配置并更新 AI 客户端。
+
+### 为什么读不到图片或图库？
+
+检查是否启用了“素材和结果读取”权限，以及图片目录或 HTTPS 来源是否已加入允许列表。修改后点击“保存 MCP 设置”，再重试素材导入。
+
+### 为什么某个功能不可调用？
+
+可用功能受当前客户端版本、账号权限和功能配置影响。请让助手先查询功能列表及参数要求。缺少必填参数、配置依赖未满足或尚未接入的功能，不应直接提交。
+
+### 为什么生成尺寸和请求不一致？
+
+不同模型的尺寸选项和输出行为可能不同。请检查返回结果的实际宽高；有精确尺寸要求时，以结果元数据为准。
+
+### 如何断开 AI 助手的权限？
+
+在 **MCP 接入** 中找到对应调用方，点击 **撤销**。也可以关闭 **启用 MCP** 停止本地服务。
+
+## 反馈与更多资料
+
+- [官网与产品介绍](https://51psai.cn/)
+- [图文使用教程](https://51psai.cn/tutorials/)
+- [提交问题或功能建议](https://github.com/trying2025/51psai-mcp/issues)：请注明操作系统、客户端版本、AI 客户端名称和错误提示，不要附带账号凭据。
+- 维护者发布说明见 [RELEASING.md](RELEASING.md)。
