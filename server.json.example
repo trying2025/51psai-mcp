@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.trying2025/51psai-mcp",
+  "title": "51PSAI MCP",
+  "description": "Connect AI assistants to 51PSAI desktop image generation, editing, templates and batch workflows.",
+  "repository": {
+    "url": "https://github.com/trying2025/51psai-mcp",
+    "source": "github"
+  },
+  "version": "REPLACE_WITH_BRIDGE_RELEASE_VERSION",
+  "packages": [
+    {
+      "registryType": "mcpb",
+      "identifier": "https://github.com/trying2025/51psai-mcp/releases/download/REPLACE_WITH_TAG/51psai-mcp.mcpb",
+      "fileSha256": "REPLACE_WITH_ACTUAL_64_HEX_SHA256",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
