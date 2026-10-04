@@ -51,7 +51,17 @@ Banana、GPTImage 和其他图像功能通过统一的任务工具调用，由�
 - 一个支持**本地 stdio MCP** 的 AI 客户端。
 - 可登录的 51PSAI / PsAIKit 账号；生成任务按所选功能和账号规则消耗积分。
 
-查看 [Releases](https://github.com/trying2025/51psai-mcp/releases) 获取发布包和版本说明。**目前首个公开 MCP 安装包尚未发布；以下步骤适用于已取得 MCP 预览包的用户。**
+首个桥接预览版 **v0.1.0-beta.1**：
+
+| 系统 | 下载 |
+| --- | --- |
+| Windows 64 位 | [Windows amd64 ZIP](https://github.com/trying2025/51psai-mcp/releases/download/v0.1.0-beta.1/51psai-mcp-v0.1.0-beta.1-windows-amd64.zip) |
+| macOS Apple Silicon | [macOS arm64 ZIP](https://github.com/trying2025/51psai-mcp/releases/download/v0.1.0-beta.1/51psai-mcp-v0.1.0-beta.1-macos-arm64.zip) |
+| macOS Intel | [macOS amd64 ZIP](https://github.com/trying2025/51psai-mcp/releases/download/v0.1.0-beta.1/51psai-mcp-v0.1.0-beta.1-macos-amd64.zip) |
+
+[SHA-256 校验值](https://github.com/trying2025/51psai-mcp/releases/download/v0.1.0-beta.1/SHA256SUMS.txt) · [版本说明](https://github.com/trying2025/51psai-mcp/releases/tag/v0.1.0-beta.1)
+
+**以上 ZIP 只包含 MCP 桥接程序，不包含桌面客户端。需要另行取得支持 MCP 的客户端预览包；当前官网普通 1.0.35 更新包不具备 MCP 接入功能。** 本版尚未完成正式发布签名和 macOS 公证，适用于预览测试。解压桥接程序后，在下方第 2 步填入其实际路径。
 
 Windows 将客户端 ZIP 解压到有写入权限的目录，运行客户端；不要直接在压缩包内启动。macOS 解压后打开客户端 app。启动后完成登录。Windows 需要可用的 WebView2 运行时。
 

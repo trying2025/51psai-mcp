@@ -51,7 +51,17 @@ You need:
 - An AI client that supports **local stdio MCP**.
 - A 51PSAI / PsAIKit account. Generation consumes credits according to the selected feature and your account's rules.
 
-See [Releases](https://github.com/trying2025/51psai-mcp/releases) for packages and version notes. **The first public MCP package has not been published yet; the instructions below apply to users who already have an MCP preview package.**
+First bridge preview: **v0.1.0-beta.1**.
+
+| Platform | Download |
+| --- | --- |
+| Windows 64-bit | [Windows amd64 ZIP](https://github.com/trying2025/51psai-mcp/releases/download/v0.1.0-beta.1/51psai-mcp-v0.1.0-beta.1-windows-amd64.zip) |
+| macOS Apple Silicon | [macOS arm64 ZIP](https://github.com/trying2025/51psai-mcp/releases/download/v0.1.0-beta.1/51psai-mcp-v0.1.0-beta.1-macos-arm64.zip) |
+| macOS Intel | [macOS amd64 ZIP](https://github.com/trying2025/51psai-mcp/releases/download/v0.1.0-beta.1/51psai-mcp-v0.1.0-beta.1-macos-amd64.zip) |
+
+[SHA-256 checksums](https://github.com/trying2025/51psai-mcp/releases/download/v0.1.0-beta.1/SHA256SUMS.txt) · [Release notes](https://github.com/trying2025/51psai-mcp/releases/tag/v0.1.0-beta.1)
+
+**These ZIPs contain only the MCP bridge, not the desktop client. Obtain an MCP-enabled desktop preview separately; the current regular 1.0.35 website update does not support MCP.** This preview has not completed production code signing or macOS notarization. Extract the bridge and use its actual path in step 2 below.
 
 On Windows, extract the client ZIP into a writable directory and launch the client; do not run it from inside the archive. On macOS, extract and open the client app. Sign in after launch. Windows requires a working WebView2 runtime.
 
